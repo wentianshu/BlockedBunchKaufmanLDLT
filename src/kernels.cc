@@ -1,4 +1,4 @@
-#include "naive_block_ldlt/kernels.h"
+#include "kernels.h"
 
 #include <cmath>
 

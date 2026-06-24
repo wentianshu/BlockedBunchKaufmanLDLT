@@ -14,10 +14,10 @@
 #include <mkl_lapacke.h>
 #endif
 
-#include "naive_block_ldlt/block_ldlt_decomposition.h"
-#include "naive_block_ldlt/block_matrix.h"
-#include "naive_block_ldlt/kernels.h"
-#include "naive_block_ldlt/regular_matrix.h"
+#include "block_ldlt_decomposition.h"
+#include "block_matrix.h"
+#include "kernels.h"
+#include "regular_matrix.h"
 
 namespace {
 

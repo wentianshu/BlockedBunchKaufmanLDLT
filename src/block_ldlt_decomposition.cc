@@ -1,4 +1,4 @@
-#include "naive_block_ldlt/block_ldlt_decomposition.h"
+#include "block_ldlt_decomposition.h"
 
 #include <algorithm>
 #include <cmath>
@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <utility>
 
-#include "naive_block_ldlt/kernels.h"
+#include "kernels.h"
 
 namespace naive_block_ldlt {
 namespace {

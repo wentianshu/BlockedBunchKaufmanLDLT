@@ -12,12 +12,9 @@ pivots.
 The code emphasizes:
 
 - aligned row-major matrix storage
-- an abstract `Matrix` base class
-- `RegularMatrix` and `BlockMatrix` implementations
 - upper-triangular block storage
 - compact in-place LDLT factor storage
 - Bunch-Kaufman threshold pivoting with symmetric row/column swaps
-- pointer/leading-dimension kernel boundaries
 - optional OpenMP and Intel MKL-backed BLAS/LAPACK kernels and comparisons
 
 ## CMake
@@ -43,6 +40,15 @@ LAPACKE `dsytrf` LDLT path and logs `naive_relative_residual`,
 residual from the compact LDLT factors and fail if it exceeds tolerance.
 
 ## Matrix Input
+
+Public headers live directly under `include/` and can be included without an
+extra project subdirectory:
+
+```cpp
+#include "block_ldlt_decomposition.h"
+#include "block_matrix.h"
+#include "regular_matrix.h"
+```
 
 `BlockMatrix` represents symmetric matrices in upper-triangular block storage.
 When constructing from a `RegularMatrix`, only one triangle is read. The upper

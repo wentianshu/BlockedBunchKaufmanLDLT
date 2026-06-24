@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "naive_block_ldlt/aligned_buffer.h"
-#include "naive_block_ldlt/matrix.h"
+#include "aligned_buffer.h"
+#include "matrix.h"
 
 namespace naive_block_ldlt {
 

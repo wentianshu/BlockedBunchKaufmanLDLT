@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "naive_block_ldlt/block_matrix.h"
-#include "naive_block_ldlt/regular_matrix.h"
+#include "block_matrix.h"
+#include "regular_matrix.h"
 
 namespace naive_block_ldlt {
 

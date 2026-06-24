@@ -1,4 +1,4 @@
-#include "naive_block_ldlt/block_matrix.h"
+#include "block_matrix.h"
 
 #include <algorithm>
 #include <cstddef>

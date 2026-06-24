@@ -1,4 +1,4 @@
-#include "naive_block_ldlt/regular_matrix.h"
+#include "regular_matrix.h"
 
 #include <algorithm>
 #include <cmath>

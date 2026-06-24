@@ -12,9 +12,9 @@
 #include <utility>
 #include <vector>
 
-#include "naive_block_ldlt/block.h"
-#include "naive_block_ldlt/block_ldlt_decomposition.h"
-#include "naive_block_ldlt/block_matrix.h"
+#include "block.h"
+#include "block_ldlt_decomposition.h"
+#include "block_matrix.h"
 
 namespace {
 

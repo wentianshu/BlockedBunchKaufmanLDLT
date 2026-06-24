@@ -3,10 +3,10 @@
 
 #include <vector>
 
-#include "naive_block_ldlt/aligned_buffer.h"
-#include "naive_block_ldlt/block.h"
-#include "naive_block_ldlt/matrix.h"
-#include "naive_block_ldlt/regular_matrix.h"
+#include "aligned_buffer.h"
+#include "block.h"
+#include "matrix.h"
+#include "regular_matrix.h"
 
 namespace naive_block_ldlt {
 
