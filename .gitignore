@@ -43,6 +43,8 @@
 build/
 Build/
 build-*/
+build_gcc/
+build_equivalence/
 
 # CMake generated files
 CMakeFiles/
@@ -67,3 +69,20 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+__pycache__/
+*.py[cod]
+_py/
+_py/logs/
+_py/*.csv
+_py/*stress_results.csv
+_py/decompostion_scale_smoke.csv
+logs/
+
+# Local assistant/editor metadata
+.agents/
+.vscode/
+AGENTS.md
+
+# Local planning/reference files
+_py/*optimization_plan*.md
+_py/*.pdf

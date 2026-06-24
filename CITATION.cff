@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it and the algorithmic reference."
+title: "BlockedBunchKaufmanLDLT"
+type: software
+authors:
+  - family-names: Shu
+    given-names: Wentian
+year: 2026
+license: MIT
+repository-code: "https://github.com/wentianshu/BlockedBunchKaufmanLDLT"
+abstract: "A C++20 research prototype for block-accelerated Bunch-Kaufman LDLT factorization of symmetric indefinite dense matrices."
+references:
+  - type: article
+    authors:
+      - family-names: Yamazaki
+        given-names: Ichitaro
+      - family-names: Tomov
+        given-names: Stanimire
+      - family-names: Dongarra
+        given-names: Jack
+    title: "Non-GPU-resident symmetric indefinite factorization"
+    year: 2017
