@@ -49,18 +49,18 @@ class BlockLdltDecomposition {
   int SelectPivot(int panel, int local_pivot,
                   const PivotCandidate& candidate);
   void ShiftBoundaryColumnToNextBlock(int panel);
-  void SwapPivot1x1(int panel, int local_pivot,
-                    const PivotCandidate& candidate);
-  void SwapPivot2x2(int panel, int local_pivot,
-                    const PivotCandidate& candidate);
-  void SwapPivot1x1InMatrix(BlockMatrix* matrix, int panel, int local_pivot,
-                            const PivotCandidate& candidate,
-                            bool swap_previous_block_rows);
-  void SwapPivot2x2InMatrix(BlockMatrix* matrix, int panel, int local_pivot,
-                            const PivotCandidate& candidate,
-                            bool swap_previous_block_rows);
-  void ScalePivot1x1(int panel, int local_pivot);
-  void ScalePivot2x2(int panel, int local_pivot);
+  void SwapOneByOnePivot(int panel, int local_pivot,
+                          const PivotCandidate& candidate);
+  void SwapTwoByTwoPivot(int panel, int local_pivot,
+                         const PivotCandidate& candidate);
+  void SwapOneByOnePivotInMatrix(BlockMatrix* matrix, int panel, int local_pivot,
+                                 const PivotCandidate& candidate,
+                                 bool swap_previous_block_rows);
+  void SwapTwoByTwoPivotInMatrix(BlockMatrix* matrix, int panel, int local_pivot,
+                                const PivotCandidate& candidate,
+                                bool swap_previous_block_rows);
+  void ScaleOneByOnePivot(int panel, int local_pivot);
+  void ScaleTwoByTwoPivot(int panel, int local_pivot);
   void UpdateTrailingBlocks(int panel);
   void ExtractRegularFactorsFromCompact();
   double GetSymmetricGlobal(const BlockMatrix& matrix, int row, int col) const;

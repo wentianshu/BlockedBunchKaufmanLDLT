@@ -367,21 +367,21 @@ void TestAlignedStorageAndIndexing() {
 void TestKernelShapes() {
   double source0[] = {2.0, 4.0, 6.0};
   double destination0[] = {0.0, 0.0, 0.0};
-  naive_block_ldlt::kernels::ScalePivot1x1(3, 2.0, source0, 1, destination0,
-                                           1);
+  naive_block_ldlt::kernels::ScaleOneByOnePivot(3, 2.0, source0, 1,
+                                                destination0, 1);
   Expect(destination0[0] == 1.0 && destination0[2] == 3.0,
-         "ScalePivot1x1 failed");
+         "ScaleOneByOnePivot failed");
 
   double source1[] = {1.0, 2.0};
   double source2[] = {3.0, 4.0};
   double destination1[] = {0.0, 0.0};
   double destination2[] = {0.0, 0.0};
-  naive_block_ldlt::kernels::ScalePivot2x2(
+  naive_block_ldlt::kernels::ScaleTwoByTwoPivot(
       2, 2.0, 1.0, 3.0, source1, 1, source2, 1, destination1, 1,
       destination2, 1);
   Expect(std::abs(destination1[0]) < 1.0e-14 &&
              std::abs(destination2[0] - 1.0) < 1.0e-14,
-         "ScalePivot2x2 failed");
+         "ScaleTwoByTwoPivot failed");
 }
 
 void TestTriangularMatrixInput() {

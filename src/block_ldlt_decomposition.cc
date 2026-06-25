@@ -13,9 +13,9 @@ namespace {
 
 constexpr double kAlpha = 0.6403882032022076;
 constexpr int kNoPivot = 0;
-constexpr int kCurrentPivot1x1 = 1;
-constexpr int kSwappedPivot1x1 = -1;
-constexpr int kPivot2x2 = 2;
+constexpr int kCurrentOneByOnePivot = 1;
+constexpr int kSwappedOneByOnePivot = -1;
+constexpr int kTwoByTwoPivot = 2;
 constexpr int kMinimumParallelBlocks = 3;
 
 double SafeDenominator(double value) {
@@ -98,22 +98,22 @@ void BlockLdltDecomposition::FactorPanel(int panel) {
         break;
       }
       pivot_size = std::abs(pivot_choice);
-      if (pivot_choice == kSwappedPivot1x1) {
-        SwapPivot1x1(panel, local_pivot, candidate);
-      } else if (pivot_size == kPivot2x2) {
+      if (pivot_choice == kSwappedOneByOnePivot) {
+        SwapOneByOnePivot(panel, local_pivot, candidate);
+      } else if (pivot_size == kTwoByTwoPivot) {
         if (local_pivot == diagonal_block.cols() - 1 &&
             panel + 1 < factors_.num_blocks()) {
           ShiftBoundaryColumnToNextBlock(panel);
           break;
         }
-        SwapPivot2x2(panel, local_pivot, candidate);
+        SwapTwoByTwoPivot(panel, local_pivot, candidate);
       }
     }
 
     if (pivot_size == 1) {
-      ScalePivot1x1(panel, local_pivot);
+      ScaleOneByOnePivot(panel, local_pivot);
     } else {
-      ScalePivot2x2(panel, local_pivot);
+      ScaleTwoByTwoPivot(panel, local_pivot);
     }
     local_pivot += pivot_size;
   }
@@ -370,44 +370,48 @@ int BlockLdltDecomposition::SelectPivot(
     int panel, int local_pivot, const PivotCandidate& candidate) {
   const Block& diagonal_block = workspace_.GetBlock(panel, panel);
   const int pivot = diagonal_block.col0() + local_pivot;
-  const double absajj = std::abs(diagonal_block(local_pivot, local_pivot));
-  const double omega_r = FindCandidateColumnMax(pivot, candidate.global_col);
-  const double absarr =
+  const double pivot_diagonal_abs =
+      std::abs(diagonal_block(local_pivot, local_pivot));
+  const double candidate_column_max =
+      FindCandidateColumnMax(pivot, candidate.global_col);
+  const double candidate_diagonal_abs =
       std::abs(workspace_.GetBlock(candidate.block_col, candidate.block_col)(
           candidate.local_col, candidate.local_col));
 
-  if (absajj * omega_r - kAlpha * candidate.omega * candidate.omega >= 0.0) {
-    return kCurrentPivot1x1;
+  if (pivot_diagonal_abs * candidate_column_max -
+          kAlpha * candidate.omega * candidate.omega >=
+      0.0) {
+    return kCurrentOneByOnePivot;
   }
-  if (absarr - kAlpha * omega_r >= 0.0) {
-    return kSwappedPivot1x1;
+  if (candidate_diagonal_abs - kAlpha * candidate_column_max >= 0.0) {
+    return kSwappedOneByOnePivot;
   }
-  return kPivot2x2;
+  return kTwoByTwoPivot;
 }
 
-void BlockLdltDecomposition::SwapPivot1x1(
+void BlockLdltDecomposition::SwapOneByOnePivot(
     int panel, int local_pivot, const PivotCandidate& candidate) {
-  SwapPivot1x1InMatrix(&factors_, panel, local_pivot, candidate,
-                       /*swap_previous_block_rows=*/true);
-  SwapPivot1x1InMatrix(&workspace_, panel, local_pivot, candidate,
-                       /*swap_previous_block_rows=*/false);
+  SwapOneByOnePivotInMatrix(&factors_, panel, local_pivot, candidate,
+                            /*swap_previous_block_rows=*/true);
+  SwapOneByOnePivotInMatrix(&workspace_, panel, local_pivot, candidate,
+                            /*swap_previous_block_rows=*/false);
 
   const int pivot = factors_.GetBlock(panel, panel).col0() + local_pivot;
   std::swap(permutation_[pivot], permutation_[candidate.global_col]);
 }
 
-void BlockLdltDecomposition::SwapPivot2x2(
+void BlockLdltDecomposition::SwapTwoByTwoPivot(
     int panel, int local_pivot, const PivotCandidate& candidate) {
-  SwapPivot2x2InMatrix(&factors_, panel, local_pivot, candidate,
-                       /*swap_previous_block_rows=*/true);
-  SwapPivot2x2InMatrix(&workspace_, panel, local_pivot, candidate,
-                       /*swap_previous_block_rows=*/false);
+  SwapTwoByTwoPivotInMatrix(&factors_, panel, local_pivot, candidate,
+                            /*swap_previous_block_rows=*/true);
+  SwapTwoByTwoPivotInMatrix(&workspace_, panel, local_pivot, candidate,
+                            /*swap_previous_block_rows=*/false);
 
   const int pivot = factors_.GetBlock(panel, panel).col0() + local_pivot;
   std::swap(permutation_[pivot + 1], permutation_[candidate.global_col]);
 }
 
-void BlockLdltDecomposition::SwapPivot1x1InMatrix(
+void BlockLdltDecomposition::SwapOneByOnePivotInMatrix(
     BlockMatrix* matrix, int panel, int local_pivot,
     const PivotCandidate& candidate, bool swap_previous_block_rows) {
   const int candidate_block_col = candidate.block_col;
@@ -493,7 +497,7 @@ void BlockLdltDecomposition::SwapPivot1x1InMatrix(
   }
 }
 
-void BlockLdltDecomposition::SwapPivot2x2InMatrix(
+void BlockLdltDecomposition::SwapTwoByTwoPivotInMatrix(
     BlockMatrix* matrix, int panel, int local_pivot,
     const PivotCandidate& candidate, bool swap_previous_block_rows) {
   const int candidate_block_col = candidate.block_col;
@@ -626,7 +630,7 @@ void BlockLdltDecomposition::ShiftBoundaryColumnToNextBlock(int panel) {
   workspace_.ShrinkBlock(panel, panel);
 }
 
-void BlockLdltDecomposition::ScalePivot1x1(int panel, int local_pivot) {
+void BlockLdltDecomposition::ScaleOneByOnePivot(int panel, int local_pivot) {
   const int num_blocks = factors_.num_blocks();
   const Block& diagonal_block = factors_.GetBlock(panel, panel);
   const int pivot = diagonal_block.col0() + local_pivot;
@@ -651,7 +655,7 @@ void BlockLdltDecomposition::ScalePivot1x1(int panel, int local_pivot) {
   factors_.GetBlock(panel, panel)(local_pivot, local_pivot) = diagonal;
 }
 
-void BlockLdltDecomposition::ScalePivot2x2(int panel, int local_pivot) {
+void BlockLdltDecomposition::ScaleTwoByTwoPivot(int panel, int local_pivot) {
   const int num_blocks = factors_.num_blocks();
   const Block& diagonal_block = factors_.GetBlock(panel, panel);
   const int pivot = diagonal_block.col0() + local_pivot;
@@ -661,15 +665,16 @@ void BlockLdltDecomposition::ScalePivot2x2(int panel, int local_pivot) {
   pivot_types_[next] = -2;
 
   const Block& workspace_diagonal = workspace_.GetBlock(panel, panel);
-  const double d00 = workspace_diagonal(local_pivot, local_pivot);
-  const double d01 = workspace_diagonal(local_pivot, local_next);
-  const double d11 = workspace_diagonal(local_next, local_next);
-  const double determinant = d00 * d11 - d01 * d01;
+  const double pivot_top_left = workspace_diagonal(local_pivot, local_pivot);
+  const double pivot_off_diagonal = workspace_diagonal(local_pivot, local_next);
+  const double pivot_bottom_right = workspace_diagonal(local_next, local_next);
+  const double determinant =
+      pivot_top_left * pivot_bottom_right -
+      pivot_off_diagonal * pivot_off_diagonal;
 
-  const double inv_w00 = d00 / determinant;
-  const double inv_w11 = d11 / determinant;
-  const double inv_w01 = -d01 / determinant;
-  const double inv_w10 = inv_w01;
+  const double inverse_top_left = pivot_bottom_right / determinant;
+  const double inverse_bottom_right = pivot_top_left / determinant;
+  const double inverse_off_diagonal = -pivot_off_diagonal / determinant;
 
 #if defined(NAIVE_BLOCK_LDLT_USE_OPENMP)
   const bool parallel_blocks = num_blocks - panel > kMinimumParallelBlocks;
@@ -684,16 +689,18 @@ void BlockLdltDecomposition::ScalePivot2x2(int panel, int local_pivot) {
             : 0;
     for (int col = start_col; col < target.cols(); ++col) {
       target(local_pivot, col) =
-          inv_w11 * source(local_pivot, col) + inv_w10 * source(local_next, col);
+          inverse_top_left * source(local_pivot, col) +
+          inverse_off_diagonal * source(local_next, col);
       target(local_next, col) =
-          inv_w01 * source(local_pivot, col) + inv_w00 * source(local_next, col);
+          inverse_off_diagonal * source(local_pivot, col) +
+          inverse_bottom_right * source(local_next, col);
     }
   }
 
   Block& factor_diagonal = factors_.GetBlock(panel, panel);
-  factor_diagonal(local_pivot, local_pivot) = d00;
-  factor_diagonal(local_pivot, local_next) = d01;
-  factor_diagonal(local_next, local_next) = d11;
+  factor_diagonal(local_pivot, local_pivot) = pivot_top_left;
+  factor_diagonal(local_pivot, local_next) = pivot_off_diagonal;
+  factor_diagonal(local_next, local_next) = pivot_bottom_right;
 }
 
 void BlockLdltDecomposition::UpdateTrailingBlocks(int panel) {

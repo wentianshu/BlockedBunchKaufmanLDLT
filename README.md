@@ -17,6 +17,15 @@ The code emphasizes:
 - Bunch-Kaufman threshold pivoting with symmetric row/column swaps
 - optional OpenMP and Intel MKL-backed BLAS/LAPACK kernels and comparisons
 
+## Citation
+
+If you use this code, please cite this repository and the algorithmic reference:
+
+> Ichitaro Yamazaki, Stanimire Tomov, and Jack Dongarra.
+> "Non-GPU-resident symmetric indefinite factorization." 2017.
+
+The repository citation metadata is available in `CITATION.cff`.
+
 ## CMake
 
 From the repository root:

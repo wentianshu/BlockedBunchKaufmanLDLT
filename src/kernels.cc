@@ -8,9 +8,9 @@
 
 namespace naive_block_ldlt::kernels {
 
-void ScalePivot1x1(int count, double pivot, const double* source,
-                   int source_stride, double* destination,
-                   int destination_stride) {
+void ScaleOneByOnePivot(int count, double pivot, const double* source,
+                        int source_stride, double* destination,
+                        int destination_stride) {
   if (count <= 0) {
     return;
   }
@@ -30,49 +30,61 @@ void ScalePivot1x1(int count, double pivot, const double* source,
 #endif
 }
 
-void ScalePivot2x2(int count, double d00, double d01, double d11,
-                   const double* source0, int source0_stride,
-                   const double* source1, int source1_stride,
-                   double* destination0, int destination0_stride,
-                   double* destination1, int destination1_stride) {
+void ScaleTwoByTwoPivot(int count, double pivot_top_left,
+                        double pivot_off_diagonal, double pivot_bottom_right,
+                        const double* first_source, int first_source_stride,
+                        const double* second_source, int second_source_stride,
+                        double* first_destination,
+                        int first_destination_stride,
+                        double* second_destination,
+                        int second_destination_stride) {
   if (count <= 0) {
     return;
   }
-  const double determinant = d00 * d11 - d01 * d01;
+  const double determinant =
+      pivot_top_left * pivot_bottom_right -
+      pivot_off_diagonal * pivot_off_diagonal;
   if (std::abs(determinant) == 0.0) {
     for (int i = 0; i < count; ++i) {
-      destination0[i * destination0_stride] = 0.0;
-      destination1[i * destination1_stride] = 0.0;
+      first_destination[i * first_destination_stride] = 0.0;
+      second_destination[i * second_destination_stride] = 0.0;
     }
     return;
   }
   for (int i = 0; i < count; ++i) {
-    const double value0 = source0[i * source0_stride];
-    const double value1 = source1[i * source1_stride];
-    destination0[i * destination0_stride] =
-        (value0 * d11 - value1 * d01) / determinant;
-    destination1[i * destination1_stride] =
-        (-value0 * d01 + value1 * d00) / determinant;
+    const double first_value = first_source[i * first_source_stride];
+    const double second_value = second_source[i * second_source_stride];
+    first_destination[i * first_destination_stride] =
+        (first_value * pivot_bottom_right -
+         second_value * pivot_off_diagonal) /
+        determinant;
+    second_destination[i * second_destination_stride] =
+        (-first_value * pivot_off_diagonal + second_value * pivot_top_left) /
+        determinant;
   }
 }
 
-void UpdateTrailingBlock(int rows, int cols, int inner_dim, const double* u,
-                         int ldu, const double* w, int ldw, double* a,
-                         int lda) {
+void UpdateTrailingBlock(int rows, int cols, int inner_dim,
+                         const double* left_panel, int left_panel_stride,
+                         const double* workspace_panel,
+                         int workspace_panel_stride, double* target,
+                         int target_stride) {
   if (rows <= 0 || cols <= 0 || inner_dim <= 0) {
     return;
   }
 #if defined(NAIVE_BLOCK_LDLT_USE_MKL)
   cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rows, cols, inner_dim,
-              -1.0, u, ldu, w, ldw, 1.0, a, lda);
+              -1.0, left_panel, left_panel_stride, workspace_panel,
+              workspace_panel_stride, 1.0, target, target_stride);
 #else
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < cols; ++j) {
       double update = 0.0;
       for (int k = 0; k < inner_dim; ++k) {
-        update += u[k * ldu + i] * w[k * ldw + j];
+        update += left_panel[k * left_panel_stride + i] *
+                  workspace_panel[k * workspace_panel_stride + j];
       }
-      a[i * lda + j] -= update;
+      target[i * target_stride + j] -= update;
     }
   }
 #endif
